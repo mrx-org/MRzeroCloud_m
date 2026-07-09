@@ -4,6 +4,6 @@ function [signal, ktraj] = fetchResult(baseUrl, jobId)
     bytes = webread([char(baseUrl), '/v1/jobs/', char(jobId), '/result'], opts);
     [signal, ktraj] = readNpzResult(bytes);
     if isempty(signal)
-        error('mr0:fetchResult:EmptySignal', 'modal backend returned empty signal');
+        error('mr0:fetchResult:EmptySignal', 'mr0-cloud returned empty signal');
     end
 end

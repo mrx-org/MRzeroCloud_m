@@ -79,22 +79,25 @@ function [signal, ktraj] = simulate(seqPath, varargin)
         worker ...
     );
 
-    if ~onProgress(sprintf('modal: submitting %s → %s', seqPath, baseUrl))
-        error('mr0:SimulationAborted', 'modal simulation aborted by client');
+    [~, seqName, seqExt] = fileparts(seqPath);
+    seqLabel = [seqName, seqExt];
+
+    if ~onProgress(sprintf('mr0-cloud: submitting %s', seqLabel))
+        error('mr0:SimulationAborted', 'mr0-cloud simulation aborted by client');
     end
 
     jobId = submitJob(baseUrl, seqPath, options);
 
-    if ~onProgress(sprintf('modal: job %s', jobId))
+    if ~onProgress(sprintf('mr0-cloud: job %s', jobId))
         abortJob(baseUrl, jobId);
-        error('mr0:SimulationAborted', 'modal simulation aborted by client');
+        error('mr0:SimulationAborted', 'mr0-cloud simulation aborted by client');
     end
 
     pollJob(baseUrl, jobId);
     [signal, ktraj] = fetchResult(baseUrl, jobId);
 
-    if ~onProgress('modal: complete')
-        error('mr0:SimulationAborted', 'modal simulation aborted by client');
+    if ~onProgress('mr0-cloud: complete')
+        error('mr0:SimulationAborted', 'mr0-cloud simulation aborted by client');
     end
 
     if p.Results.NoiseLevel > 0

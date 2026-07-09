@@ -12,14 +12,15 @@ function pollJob(baseUrl, jobId)
         elseif isfield(status, 'status')
             msg = char(status.status);
         end
-        if isfield(status, 'repetition') && isfield(status, 'total') ...
-                && status.repetition > 0 && status.total > 0
-            msg = sprintf('%s %d/%d', msg, status.repetition, status.total);
+        rep = scalarCount(status, 'repetition');
+        tot = scalarCount(status, 'total');
+        if rep > 0 && tot > 0
+            msg = sprintf('%s %d/%d', msg, rep, tot);
         end
 
         if strlength(string(msg)) > 0 && ~onProgress(msg)
             abortJob(baseUrl, jobId);
-            error('mr0:SimulationAborted', 'modal simulation aborted by client');
+            error('mr0:SimulationAborted', 'mr0-cloud simulation aborted by client');
         end
 
         switch char(status.status)
@@ -32,11 +33,23 @@ function pollJob(baseUrl, jobId)
                 end
                 error('mr0:pollJob:Failed', '%s', detail);
             case 'aborted'
-                error('mr0:SimulationAborted', 'modal simulation aborted');
+                error('mr0:SimulationAborted', 'mr0-cloud simulation aborted');
         end
 
         pause(pollInterval);
     end
 
-    error('mr0:pollJob:Timeout', 'modal job %s did not finish within %.0f s', jobId, pollTimeout);
+    error('mr0:pollJob:Timeout', 'mr0-cloud job %s did not finish within %.0f s', jobId, pollTimeout);
+end
+
+function n = scalarCount(status, fieldName)
+%SCALARCOUNT Read a non-negative scalar count from a JSON status struct.
+    n = 0;
+    if ~isfield(status, fieldName) || isempty(status.(fieldName))
+        return;
+    end
+    value = status.(fieldName);
+    if isnumeric(value) || islogical(value)
+        n = double(value(1));
+    end
 end
