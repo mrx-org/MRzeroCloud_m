@@ -1,25 +1,45 @@
-function arr = readNpy(filename)
+function arr = readNpy(source)
 %READNPY Minimal NumPy .npy reader for float32/complex64 arrays.
-    fid = fopen(filename, 'rb');
-    assert(fid > 0, 'Could not open %s', filename);
-    cleaner = onCleanup(@() fclose(fid));
-
-    magic = fread(fid, 6, '*char')';
-    if ~startsWith(magic, char(147))
-        error('mr0:readNpy:BadMagic', 'Not a .npy file: %s', filename);
-    end
-
-    ver = fread(fid, 2, 'uint8');
-    if ver(1) == 1
-        headerLen = fread(fid, 1, 'uint16');
+    if ischar(source) || isstring(source)
+        fid = fopen(char(source), 'rb');
+        if fid < 0
+            error('mr0:readNpy:OpenFailed', 'Could not open %s', char(source));
+        end
+        cleaner = onCleanup(@() fclose(fid));
+        data = fread(fid, inf, 'uint8');
     else
-        headerLen = fread(fid, 1, 'uint32');
+        data = uint8(source(:))';
     end
-    header = fread(fid, headerLen, '*char')';
+    arr = parseNpyBytes(data);
+end
+
+function arr = parseNpyBytes(data)
+    if numel(data) < 10
+        error('mr0:readNpy:BadMagic', 'Not a .npy file (too short)');
+    end
+
+    magic = data(1:6);
+    expected = [147, uint8('NUMPY')];
+    if ~isequal(magic, expected)
+        error('mr0:readNpy:BadMagic', 'Not a .npy file (bad magic)');
+    end
+
+    major = data(7);
+    if major == 1
+        headerLen = double(typecast(data(9:10), 'uint16'));
+        headerStart = 11;
+    elseif major == 2
+        headerLen = double(typecast(data(9:12), 'uint32'));
+        headerStart = 13;
+    else
+        error('mr0:readNpy:UnsupportedVersion', 'Unsupported .npy version %d', major);
+    end
+    headerEnd = headerStart + headerLen - 1;
+    header = char(data(headerStart:headerEnd));
 
     descrTok = regexp(header, '''descr''\s*:\s*''([^'']+)''', 'tokens', 'once');
     if isempty(descrTok)
-        error('mr0:readNpy:MissingDescr', 'Missing dtype in %s', filename);
+        error('mr0:readNpy:MissingDescr', 'Missing dtype in .npy header');
     end
     descr = descrTok{1};
 
@@ -35,8 +55,8 @@ function arr = readNpy(filename)
         shape = 1;
     end
 
-    data = fread(fid, inf, '*uint8');
-    arr = decodeNpyPayload(descr, shape, data);
+    payload = data(headerEnd + 1:end);
+    arr = decodeNpyPayload(descr, shape, payload);
 end
 
 function arr = decodeNpyPayload(descr, shape, data)
