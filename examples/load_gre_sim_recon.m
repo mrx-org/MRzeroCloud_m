@@ -1,4 +1,4 @@
-%PROT_SIMPLE Smoke test against mr0-cloud with simple FFT recon.
+%LOAD_GRE_SIM_RECON Simulate gre.seq on mr0-cloud and FFT recon.
 %
 %   Uses gre.seq in this examples/ folder.
 
@@ -62,4 +62,3 @@ imagesc(flipud(angle(space.')), [-pi, pi]);
 axis image; 
 colormap(gca, gray);colorbar;
 title('FFT-phase');
-

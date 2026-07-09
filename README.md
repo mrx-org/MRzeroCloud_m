@@ -1,8 +1,15 @@
-# MRzerocloud_m
+# MRzeroCloud_m
 
-MATLAB client for [tool-mr0sim-modal_http](../tool-mr0sim-modal_http): Pulseq `.seq` upload, async job polling, NPZ `(signal, ktraj)` download via the deployed Modal gateway.
+**Version 0.1.0** — see [RELEASE_NOTES.md](RELEASE_NOTES.md).
+
+MATLAB client for the **mr0-cloud** server: Pulseq `.seq` upload, async job polling, NPZ `(signal, ktraj)` download.
 
 Requires MATLAB R2019a+ (`matlab.net.http` for multipart upload).
+Supports only **Pulseq sequences:** Pulseq **≤ 1.4.2** (`.seq` files only)
+
+## Server
+- **MRzeroCore** on mr0-cloud: **0.4.12**
+
 
 ## Setup
 
@@ -19,9 +26,11 @@ rehash path;   % if the package was already on path
 [signal, ktraj] = mr0.simulate('gre.seq');
 ```
 
+Example with recon: `examples/load_gre_sim_recon.m` (uses `examples/gre.seq`).
+
 With no `Config` argument, simulation uses the cached bifti phantom `user/numerical_brain_cropped_bifti` on the **t4** worker pool, with `res`/`affine` matching that phantom's native grid.
 
-The gateway requires `res` and `affine` on every bifti job (server-side reslicing). A different FOV can be requested by setting both on the config struct, e.g. from AnyField metadata via `loadConfig`.
+The server requires `res` and `affine` on every bifti job (server-side reslicing). A different FOV can be requested by setting both on the config struct, e.g. from AnyField metadata via `loadConfig`.
 
 ## Protocol config
 
@@ -50,8 +59,9 @@ mr0.stopSimulation();
 
 | Function | Purpose |
 |----------|---------|
-| `mr0.configure(...)` | Set Modal gateway URL, progress callback |
-| `mr0.getModalUrl()` | Current Modal gateway URL |
+| `mr0.version()` | Package version string |
+| `mr0.configure(...)` | Override mr0-cloud URL, progress callback |
+| `mr0.getModalUrl()` | Current mr0-cloud server URL |
 | `mr0.loadConfig(source)` | Parse AnyField JSON metadata |
 | `mr0.defaultConfig()` | Default cached phantom id and sim flags |
 | `mr0.simulate(seqPath, ...)` | Blocking simulation → `(signal, ktraj)` |
