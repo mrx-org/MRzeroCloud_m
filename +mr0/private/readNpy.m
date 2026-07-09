@@ -72,7 +72,7 @@ function arr = decodeNpyPayload(descr, shape, data)
             error('mr0:readNpy:UnsupportedDtype', 'Unsupported dtype %s', descr);
     end
 
-    if numel(shape) == 1 || prod(shape) == numel(arr)
+    if numel(shape) == 1
         arr = arr(:);
         return;
     end

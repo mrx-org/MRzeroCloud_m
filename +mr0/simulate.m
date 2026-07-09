@@ -17,7 +17,7 @@ function [signal, ktraj] = simulate(seqPath, varargin)
 %
 %   Returns
 %     signal - complex single ADC samples (column vector)
-%     ktraj  - single k-space trajectory (N×3)
+%     ktraj  - k-space trajectory (N×3 or N×4)
 
     p = inputParser;
     p.addRequired('seqPath', @(x) ischar(x) || isstring(x));
