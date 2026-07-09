@@ -1,11 +1,11 @@
 # MRzeroCloud_m
 
-**Version 0.1.0** — see [RELEASE_NOTES.md](RELEASE_NOTES.md).
+**Version 0.2.0** — see [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
 MATLAB client for the **mr0-cloud** server: Pulseq `.seq` upload, async job polling, NPZ `(signal, ktraj)` download.
 
 Requires MATLAB R2019a+ (`matlab.net.http` for multipart upload).
-Supports only **Pulseq sequences:** Pulseq **≤ 1.4.2** (`.seq` files only)
+Supports only **Pulseq sequences:** version **≤ 1.4.2**, **≤ 20 000 lines** (`.seq` files; checked before simulate)
 
 ## Server
 - **MRzeroCore** on mr0-cloud: **0.4.12**
