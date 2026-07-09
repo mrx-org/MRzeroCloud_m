@@ -1,54 +1,30 @@
 function [signal, ktraj] = readNpzResult(bytes)
 %READNPZRESULT Load signal and ktraj arrays from NPZ bytes.
-    entries = extractNpzEntries(bytes);
+    tmpDir = tempname;
+    mkdir(tmpDir);
+    cleaner = onCleanup(@() rmdir(tmpDir, 's'));
 
-    if ~isfield(entries, 'signal') || isempty(entries.signal)
-        error('mr0:readNpzResult:MissingArrays', 'NPZ must contain signal.npy');
+    zipPath = fullfile(tmpDir, 'result.npz');
+    fid = fopen(zipPath, 'w');
+    if fid < 0
+        error('mr0:readNpzResult:WriteFailed', 'Could not write temporary NPZ');
     end
-    if ~isfield(entries, 'ktraj') || isempty(entries.ktraj)
-        error('mr0:readNpzResult:MissingArrays', 'NPZ must contain ktraj.npy');
-    end
+    fwrite(fid, bytes, 'uint8');
+    fclose(fid);
 
-    signal = single(readNpy(entries.signal));
-    ktraj = single(readNpy(entries.ktraj));
+    unzip(zipPath, tmpDir);
+
+    signalPath = locateNpy(tmpDir, 'signal.npy');
+    ktrajPath = locateNpy(tmpDir, 'ktraj.npy');
+
+    signal = single(readNpy(signalPath));
+    ktraj = single(readNpy(ktrajPath));
 end
 
-function entries = extractNpzEntries(npzBytes)
-    import java.io.ByteArrayInputStream
-    import java.io.ByteArrayOutputStream
-    import java.util.zip.ZipInputStream
-
-    entries = struct();
-    bais = ByteArrayInputStream(uint8(npzBytes(:)));
-    zis = ZipInputStream(bais);
-    entry = zis.getNextEntry();
-    buffer = javaArray('byte', 8192);
-
-    while ~isempty(entry)
-        name = char(entry.getName());
-        baseName = char(java.io.File(name).getName());
-        payload = readZipEntryBytes(zis, buffer);
-
-        if strcmp(baseName, 'signal.npy')
-            entries.signal = payload;
-        elseif strcmp(baseName, 'ktraj.npy')
-            entries.ktraj = payload;
-        end
-
-        zis.closeEntry();
-        entry = zis.getNextEntry();
+function path = locateNpy(root, leafName)
+    listing = dir(fullfile(root, '**', leafName));
+    if isempty(listing)
+        error('mr0:readNpzResult:MissingArrays', 'NPZ must contain %s', leafName);
     end
-    zis.close();
-end
-
-function bytes = readZipEntryBytes(zis, buffer)
-    import java.io.ByteArrayOutputStream
-
-    baos = ByteArrayOutputStream();
-    n = zis.read(buffer);
-    while n > 0
-        baos.write(buffer, 0, n);
-        n = zis.read(buffer);
-    end
-    bytes = typecast(baos.toByteArray(), 'uint8');
+    path = fullfile(listing(1).folder, listing(1).name);
 end
