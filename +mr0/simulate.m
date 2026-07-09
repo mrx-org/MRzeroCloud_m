@@ -32,7 +32,7 @@ function [signal, ktraj] = simulate(seqPath, varargin)
 
     seqPath = char(seqPath);
     if isempty(p.Results.Config)
-        config = defaultConfig(seqPath);
+        config = mr0.defaultConfig(seqPath);
     else
         config = p.Results.Config;
     end
@@ -66,7 +66,7 @@ function [signal, ktraj] = simulate(seqPath, varargin)
     if strlength(string(p.Results.BaseUrl)) > 0
         baseUrl = char(strtrim(string(p.Results.BaseUrl)));
     else
-        baseUrl = getModalUrl();
+        baseUrl = mr0.getModalUrl();
     end
 
     packageState('resetabort');

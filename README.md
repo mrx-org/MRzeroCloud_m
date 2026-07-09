@@ -6,10 +6,11 @@ Requires MATLAB R2019a+ (`matlab.net.http` for multipart upload).
 
 ## Setup
 
-Add the package root to the MATLAB path:
+Add the folder that **contains** `+mr0` (not `+mr0` itself):
 
 ```matlab
-addpath('path/to/MRzerocloud_m');
+addpath('path/to/MRzeroCloud_m');
+rehash path;   % if the package was already on path
 ```
 
 ## Quick start
