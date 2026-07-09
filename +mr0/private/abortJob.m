@@ -4,7 +4,7 @@ function abortJob(baseUrl, jobId)
 
     try
         req = RequestMessage('post');
-        uri = URI([char(baseUrl), '/v1/jobs/', char(jobId), '/abort']);
+        uri = matlab.net.URI([char(baseUrl), '/v1/jobs/', char(jobId), '/abort']);
         req.send(uri);
     catch
         % Ignore network errors during cooperative abort.

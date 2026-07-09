@@ -14,7 +14,7 @@ function jobId = submitJob(baseUrl, seqPath, options)
         'options', jsonencode(options) ...
     );
     req = RequestMessage('post', [], body);
-    uri = URI([baseUrl, '/v1/jobs']);
+    uri = matlab.net.URI([baseUrl, '/v1/jobs']);
     resp = req.send(uri);
 
     if resp.StatusCode ~= 200
