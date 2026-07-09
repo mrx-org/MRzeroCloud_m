@@ -33,6 +33,7 @@ function [signal, ktraj] = simulate(seqPath, varargin)
     parse(p, seqPath, varargin{:});
 
     seqPath = char(seqPath);
+    % Local validation only — no network I/O until this passes.
     checkPulseqVersion(seqPath);
 
     if isempty(p.Results.Config)
@@ -90,7 +91,7 @@ function [signal, ktraj] = simulate(seqPath, varargin)
         error('mr0:SimulationAborted', 'mr0-cloud simulation aborted by client');
     end
 
-    jobId = submitJob(baseUrl, seqPath, options);
+    jobId = submitJob(baseUrl, seqPath, options);  % re-validates before POST
 
     if ~onProgress(sprintf('mr0-cloud: job %s', jobId))
         abortJob(baseUrl, jobId);

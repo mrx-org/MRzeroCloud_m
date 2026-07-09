@@ -3,11 +3,10 @@ function jobId = submitJob(baseUrl, seqPath, options)
     import matlab.net.http.*
     import matlab.net.http.io.*
 
-    baseUrl = char(strtrim(string(baseUrl)));
     seqPath = char(seqPath);
-    if ~isfile(seqPath)
-        error('mr0:submitJob:MissingSeq', 'Sequence file not found: %s', seqPath);
-    end
+    checkPulseqVersion(seqPath);
+
+    baseUrl = char(strtrim(string(baseUrl)));
 
     body = MultipartFormProvider( ...
         'seq', FileProvider(seqPath), ...

@@ -1,5 +1,6 @@
 function checkPulseqVersion(seqPath)
-%CHECKPULSEQVERSION Reject unsupported .seq files before simulation.
+%CHECKPULSEQVERSION Local pre-flight for .seq files (no network I/O).
+%   Rejects unsupported files before mr0-cloud submission:
 %   Pulseq version must be <= 1.4.2; file must have <= 20000 lines.
     seqPath = char(seqPath);
     if ~isfile(seqPath)
