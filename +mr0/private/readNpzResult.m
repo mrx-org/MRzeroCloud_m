@@ -1,30 +1,51 @@
 function [signal, ktraj] = readNpzResult(bytes)
 %READNPZRESULT Load signal and ktraj arrays from NPZ bytes.
-    tmpDir = tempname;
-    mkdir(tmpDir);
-    cleaner = onCleanup(@() rmdir(tmpDir, 's'));
+    entries = extractNpzEntries(bytes);
 
-    zipPath = fullfile(tmpDir, 'result.npz');
-    fid = fopen(zipPath, 'w');
-    if fid < 0
-        error('mr0:readNpzResult:WriteFailed', 'Could not write temporary NPZ');
+    if ~isfield(entries, 'signal') || isempty(entries.signal)
+        error('mr0:readNpzResult:MissingArrays', 'NPZ must contain signal.npy');
     end
-    fwrite(fid, bytes, 'uint8');
-    fclose(fid);
+    if ~isfield(entries, 'ktraj') || isempty(entries.ktraj)
+        error('mr0:readNpzResult:MissingArrays', 'NPZ must contain ktraj.npy');
+    end
 
-    unzip(zipPath, tmpDir);
-
-    signalPath = locateNpy(tmpDir, 'signal.npy');
-    ktrajPath = locateNpy(tmpDir, 'ktraj.npy');
-
-    signal = single(readNpy(signalPath));
-    ktraj = single(readNpy(ktrajPath));
+    signal = single(readNpy(entries.signal));
+    ktraj = single(readNpy(entries.ktraj));
 end
 
-function path = locateNpy(root, leafName)
-    listing = dir(fullfile(root, '**', leafName));
-    if isempty(listing)
-        error('mr0:readNpzResult:MissingArrays', 'NPZ must contain %s', leafName);
+function entries = extractNpzEntries(npzBytes)
+    import java.io.ByteArrayInputStream
+    import java.util.zip.ZipInputStream
+
+    entries = struct();
+    bais = ByteArrayInputStream(uint8(npzBytes(:)));
+    zis = ZipInputStream(bais);
+    entry = zis.getNextEntry();
+
+    while ~isempty(entry)
+        baseName = char(java.io.File(char(entry.getName())).getName());
+        payload = readZipEntryBytes(zis);
+
+        if strcmp(baseName, 'signal.npy')
+            entries.signal = payload;
+        elseif strcmp(baseName, 'ktraj.npy')
+            entries.ktraj = payload;
+        end
+
+        zis.closeEntry();
+        entry = zis.getNextEntry();
     end
-    path = fullfile(listing(1).folder, listing(1).name);
+    zis.close();
+end
+
+function bytes = readZipEntryBytes(zis)
+    import java.io.ByteArrayOutputStream
+
+    baos = ByteArrayOutputStream();
+    nextByte = zis.read();
+    while nextByte >= 0
+        baos.write(nextByte);
+        nextByte = zis.read();
+    end
+    bytes = typecast(baos.toByteArray(), 'uint8');
 end
