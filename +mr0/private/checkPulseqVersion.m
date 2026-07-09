@@ -8,7 +8,7 @@ function checkPulseqVersion(seqPath)
 
     txt = fileread(seqPath);
     maxLines = 20000;
-    nLines = numel(splitlines(string(txt)));
+    nLines = countLines(txt);
     if nLines > maxLines
         error('mr0:checkPulseqVersion:FileTooLarge', ...
             'Sequence file has %d lines (%d maximum currently supported)', ...
@@ -26,32 +26,41 @@ function checkPulseqVersion(seqPath)
     end
 end
 
+function nLines = countLines(txt)
+    if isempty(txt)
+        nLines = 0;
+        return;
+    end
+    nLines = sum(txt == newline | txt == char(13)) + 1;
+end
+
 function ver = parsePulseqVersion(txt)
     ver = struct('major', [], 'minor', [], 'revision', []);
     inVersion = false;
 
-    for line = splitlines(string(txt))
-        line = strtrim(line);
-        if strlength(line) == 0 || startsWith(line, "#")
+    lines = splitlines(string(txt));
+    for k = 1:numel(lines)
+        line = strtrim(char(lines(k)));
+        if isempty(line) || line(1) == '#'
             continue;
         end
-        if line == "[VERSION]"
+        if strcmp(line, '[VERSION]')
             inVersion = true;
             continue;
         end
-        if startsWith(line, "[") && inVersion
+        if line(1) == '[' && inVersion
             break;
         end
         if ~inVersion
             continue;
         end
 
-        parts = split(line);
-        if numel(parts) < 2
+        tokens = regexp(line, '^\s*(\w+)\s+(\S+)', 'tokens', 'once');
+        if isempty(tokens)
             continue;
         end
-        key = lower(char(parts(1)));
-        val = str2double(parts(2));
+        key = lower(tokens{1});
+        val = str2double(tokens{2});
         if isnan(val)
             continue;
         end
