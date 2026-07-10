@@ -1,4 +1,4 @@
-%LOAD_GRE_SIM_RECON Simulate gre.seq on mr0-cloud and FFT recon.
+%LOAD_GRE_SIM_RECON Simulate gre.seq on mr0-cloud and iFFT recon.
 %
 %   Uses gre.seq in this examples/ folder.
 
@@ -35,7 +35,7 @@ Nphase=sqrt(numel(signal)); % assume square matrix
 kspace = reshape(signal, [Nread, Nphase]);
 
 spectrum = fftshift(kspace);
-space = fft2(spectrum);
+space = ifft2(spectrum);
 space = ifftshift(space);
 
 figure();
@@ -55,10 +55,10 @@ subplot(2, 2, 3);
 imagesc(flipud(abs(space.')));
 axis image; 
 colormap(gca, gray);colorbar;
-title('FFT-magnitude');
+title('recon-magnitude');
 
 subplot(2, 2, 4);
 imagesc(flipud(angle(space.')), [-pi, pi]);
 axis image; 
 colormap(gca, gray);colorbar;
-title('FFT-phase');
+title('recon-phase');

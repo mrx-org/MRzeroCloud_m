@@ -1,5 +1,13 @@
 # Release notes
 
+## 1.0.1
+
+_Package version now tracks the MRzeroCore version on mr0-cloud._
+
+- Server **MRzeroCore 1.0.1** (was 0.4.12): Pulseq **1.5** via `pulseq_rs`
+- Pre-flight `.seq` checks now allow Pulseq version **≤ 1.5.0** (was ≤ 1.4.2)
+- Example `load_gre_sim_recon.m`: Cartesian recon uses **ifft2** for MRzeroCore 1.0 signal sign convention
+
 ## 0.2.0
 
 - Pre-flight `.seq` checks: Pulseq version **≤ 1.4.2**, file **≤ 20 000 lines**

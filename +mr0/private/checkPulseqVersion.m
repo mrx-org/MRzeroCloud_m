@@ -1,7 +1,7 @@
 function checkPulseqVersion(seqPath)
 %CHECKPULSEQVERSION Local pre-flight for .seq files (no network I/O).
 %   Rejects unsupported files before mr0-cloud submission:
-%   Pulseq version must be <= 1.4.2; file must have <= 20000 lines.
+%   Pulseq version must be <= 1.5.0; file must have <= 20000 lines.
     seqPath = char(seqPath);
     if ~isfile(seqPath)
         error('mr0:checkPulseqVersion:MissingSeq', 'Sequence file not found: %s', seqPath);
@@ -17,12 +17,11 @@ function checkPulseqVersion(seqPath)
     end
 
     ver = parsePulseqVersion(txt);
-    maxVer = struct('major', 1, 'minor', 4, 'revision', 2);
+    maxVer = struct('major', 1, 'minor', 5, 'revision', 0);
 
     if isVersionNewerThan(ver, maxVer)
         error('mr0:checkPulseqVersion:UnsupportedVersion', ...
-            ['Pulseq version %d.%d.%d is not supported (maximum 1.4.2). ', ...
-            'Re-export the sequence with pypulseq <= 1.4.2.'], ...
+            'Pulseq version %d.%d.%d is not supported (maximum 1.5.0).', ...
             ver.major, ver.minor, ver.revision);
     end
 end

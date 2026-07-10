@@ -1,14 +1,14 @@
 # MRzeroCloud_m
 
-**Version 0.2.0** — see [RELEASE_NOTES.md](RELEASE_NOTES.md).
+**Version 1.0.1** — see [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
-MATLAB client for the **mr0-cloud** server: Pulseq `.seq` upload, async job polling, NPZ `(signal, ktraj)` download.
+MATLAB client for the **mr0-cloud** server: Pulseq `.seq` upload, sim job, download
 
 Requires MATLAB R2019a+ (`matlab.net.http` for multipart upload).
-Supports only **Pulseq sequences:** version **≤ 1.4.2**, **≤ 20 000 lines** (`.seq` files; checked before simulate)
+Supports only **Pulseq sequences:** version **≤ 1.5.0**, **≤ 20 000 lines** (`.seq` files; checked before simulate)
 
 ## Server
-- **MRzeroCore** on mr0-cloud: **0.4.12**
+- **MRzeroCore** on mr0-cloud: **1.0.1** (`pulseq_rs`, Pulseq 1.5). Signal uses the MRzeroCore 1.0 sign convention (complex conjugate vs pre-1.0); Cartesian recon clients should use **ifft**, not fft.
 
 
 ## Setup

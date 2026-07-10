@@ -1,7 +1,7 @@
 function [signal, ktraj] = simulate(seqPath, varargin)
 %SIMULATE Run MRI simulation on mr0-cloud.
 %
-%   seqPath must be a Pulseq .seq file (version <= 1.4.2, <= 20000 lines).
+%   seqPath must be a Pulseq .seq file (version <= 1.5.0, <= 20000 lines).
 %
 %   [signal, ktraj] = mr0.simulate('gre.seq')              % default cached phantom
 %   [signal, ktraj] = mr0.simulate('gre.seq', 'Worker', 'a10g')
